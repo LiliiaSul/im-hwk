@@ -23,6 +23,7 @@ export class DetailComponent implements OnInit {
   product!: ProductType;
   serverStaticPath = environment.serverStaticPath;
   private _snackBar = inject(MatSnackBar);
+  isLogged: boolean = false; //актуальное состояние авторизации
 
   customOptions: OwlOptions = {
     loop: true,
@@ -53,9 +54,14 @@ export class DetailComponent implements OnInit {
   constructor(private productService: ProductService, private activatedRoute: ActivatedRoute,
               private cartService: CartService, private favoriteService: FavoriteService,
               private authService: AuthService) {
+    this.isLogged = this.authService.getIsLoggedIn(); //получаем начальное состояние авторизации при загрузке компонента
   }
 
   ngOnInit(): void {
+    this.authService.isLogged$.subscribe((isLoggedIn: boolean) => {
+      this.isLogged = isLoggedIn;
+    });
+
     this.activatedRoute.params.subscribe(params => { // Получаем URL продукта из параметров маршрута и запрашиваем его данные с сервера
       this.productService.getProduct(params['url']) // делаем запрос на получение данных о конкретном продукте по его URL, который был получен из параметров маршрута
         .subscribe((data: ProductType) => {
@@ -78,7 +84,7 @@ export class DetailComponent implements OnInit {
               }
             });
 
-          if (this.authService.getIsLoggedIn()) { //осуществляем запрос, если только пользователь залогинен
+          if (this.isLogged) { //осуществляем запрос, если только пользователь залогинен
             this.favoriteService.getFavorites() //получаем избранные товары
               .subscribe(data => {
                 if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
@@ -140,7 +146,7 @@ export class DetailComponent implements OnInit {
   }
 
   updateFavorite() { //метод для добавления или удаления товара из избранного
-    if (!this.authService.getIsLoggedIn()) { //проверяем, авторизован ли пользователь, так как добавление в избранное доступно только для авторизованных пользователей
+    if (!this.isLogged) { //проверяем, авторизован ли пользователь, так как добавление в избранное доступно только для авторизованных пользователей
       this._snackBar.open('Для добавления в избранное необходимо авторизоваться');
       return;
     }

@@ -22,7 +22,7 @@ export class CountSelectorComponent implements OnInit {
   }
 
   decreaseCount() {
-    if (this.count > 1) {
+    if (this.count > 1) { // уменьшаем счетчик только если он больше 1
       this.count--;
       this.countChange(); // вызываем метод countChange для передачи нового значения счетчика родительскому компоненту
     }

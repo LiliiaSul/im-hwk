@@ -20,15 +20,21 @@ export class ProductCardComponent implements OnInit {
   @Input() isLight: boolean = false; //стиль карточки продукта (облегченный или обычный), который будет передаваться из родительского компонента
   @Input() countInCart: number | undefined = 0; //количество данного продукта, которое уже находится в корзине или это 0, если продукт еще не добавлен в корзину.
   private _snackBar = inject(MatSnackBar);
+  isLogged: boolean = false; //актуальное состояние авторизации
 
   constructor(private cartService: CartService, private authService: AuthService,
               private favoriteService: FavoriteService, private router: Router) {
+    this.isLogged = this.authService.getIsLoggedIn(); //получаем начальное состояние авторизации при загрузке компонента
   }
 
   ngOnInit(): void {
     if (this.countInCart && this.countInCart > 1) { //если продукт уже был добавлен в корзину ранее и его количество больше 1, устанавливаем начальное значение count равным количеству данного продукта в корзине, чтобы отображать актуальное количество продукта при загрузке компонента
       this.count = this.countInCart;
     }
+
+    this.authService.isLogged$.subscribe((isLoggedIn: boolean) => {
+      this.isLogged = isLoggedIn;
+    });
   }
 
   addToCart() { //добавление товара в корзину
@@ -69,7 +75,7 @@ export class ProductCardComponent implements OnInit {
   }
 
   updateFavorite() { //метод для добавления или удаления товара из избранного
-    if (!this.authService.getIsLoggedIn()) { //проверяем, авторизован ли пользователь, так как добавление в избранное доступно только для авторизованных пользователей
+    if (!this.isLogged) { //проверяем, авторизован ли пользователь, так как добавление в избранное доступно только для авторизованных пользователей
       this._snackBar.open('Для добавления в избранное необходимо авторизоваться');
       return;
     }

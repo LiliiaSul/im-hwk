@@ -29,6 +29,7 @@
 
 
     .favorite-products {
+      width: 1240px;
       .favorite-product {
         padding-top: 15px;
         margin-top: 15px;
@@ -61,7 +62,7 @@
 
         .favorite-product-price {
           width: 100px;
-          margin-right: 193px;
+          margin-right: 16px;
           font-family: 'Montserrat', sans-serif;
           font-style: normal;
           font-weight: 600;
@@ -71,10 +72,11 @@
 
         .favorite-product-action button {
           width: 160px;
+          margin-left: 16px;
         }
 
         .favorite-product-remove {
-          margin-left: 60px;
+          margin-left: 16px;
           cursor: pointer;
         }
       }
