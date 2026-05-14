@@ -51,16 +51,21 @@ export class HeaderComponent implements OnInit {
 
     this.authService.isLogged$.subscribe((isLoggedIn: boolean) => { //подписываемся на изменения статуса авторизации в AuthService и обновляем локальное состояние isLogged при каждом изменении
       this.isLogged = isLoggedIn;
+
+      if (isLoggedIn) {
+        this.cartService.getCartCount() //метод для получения количества товаров в корзине
+          .subscribe(data => {
+            if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
+              throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
+            }
+
+            this.count = (data as { count: number }).count; //обновляем локальное состояние count при получении данных от сервера
+          });
+      } else {
+        this.count = 0; //если пользователь не авторизован
+      }
     });
 
-    this.cartService.getCartCount() //метод для получения количества товаров в корзине
-      .subscribe(data => {
-        if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
-          throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
-        }
-
-        this.count = (data as { count: number }).count; //обновляем локальное состояние count при получении данных от сервера
-      });
 
     this.cartService.count$ //подписываемся на изменения количества товаров в корзине и обновляем локальное состояние count при каждом изменении
       .subscribe(count => {
@@ -87,19 +92,6 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  //
-  // changedSearchValue(newValue: string) { //метод для обработки изменения значения в поисковой строке, который вызывается при каждом изменении значения в поле ввода
-  //   this.searchValue = newValue; //обновляем локальное состояние searchValue при каждом изменении значения в поле ввода
-  //   if (this.searchValue && this.searchValue.length > 2) {
-  //     this.productService.searchProducts(this.searchValue)
-  //       .subscribe(data => {
-  //       this.products = data;
-  //       this.showedSearch = true; //показываем результаты поиска
-  //       });
-  //   } else { //иначе очищаем список продуктов, чтобы не отображать результаты поиска
-  //     this.products = [];
-  //   }
-  // }
 
   selectProduct(url: string) { //метод для обработки выбора продукта из результатов поиска, который вызывается при клике на результат поиска
     this.router.navigate(['/product/' + url]);

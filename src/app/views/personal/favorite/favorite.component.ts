@@ -14,8 +14,7 @@ import {CartType} from "../../../../types/cart.type";
 export class FavoriteComponent implements OnInit {
   products: FavoriteType[] = [];
   serverStaticPath = environment.serverStaticPath; //путь к статическим файлам на сервере
-  count: number = 1;
-  countInCart: number = 0; //количество данного продукта в корзине
+  count: number = 1; //количество товара, которое пользователь хочет добавить в корзину
 
   constructor(private favoriteService: FavoriteService, private cartService: CartService) {
   }
@@ -23,6 +22,13 @@ export class FavoriteComponent implements OnInit {
   ngOnInit(): void {
     this.favoriteService.getFavorites() //получаем избранные товары
       .subscribe(data => {
+
+        if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
+          const error = (data as DefaultResponseType).message;
+          throw new Error(error); //выбрасываем ошибку
+        }
+
+        this.products = data as FavoriteType[]; //если все хорошо, сохраняем избранные товары в переменную
 
         this.cartService.getCart() //получаем данные корзины, чтобы узнать, какие товары из избранного уже есть в корзине и сколько их там
           .subscribe(cartData => {
@@ -33,22 +39,15 @@ export class FavoriteComponent implements OnInit {
 
             const cartDataResponse = cartData as CartType; //сохраняем данные корзины
 
-            if (cartDataResponse) { //если данные корзины получены успешно, то ищем в ней товары из избранного, чтобы отобразить информацию о количестве этих товаров в корзине
-              const favoritesInCart = cartDataResponse.items.find(item => item.product.id === this.products[0].id);
-              if (favoritesInCart) { //если товар из избранного найден в корзине
-                this.countInCart = favoritesInCart.quantity; // добавляем к нему информацию о количестве в корзине
-                this.count = this.countInCart;
-              }
+            if (cartDataResponse && cartDataResponse.items) { //если данные корзины получены успешно, проходим по каждому товару из избранного и проверяем, есть ли он в корзине
+              this.products.forEach(product => {
+                const favoriteInCart = cartDataResponse.items.find(item => item.product.id === product.id);
+                if (favoriteInCart) {
+                  product.countInCart = favoriteInCart.quantity; //если товар из избранного найден в корзине, сохраняем его количество в корзине в свойство countInCart этого товара
+                }
+              });
             }
           });
-
-
-        if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
-          const error = (data as DefaultResponseType).message;
-          throw new Error(error); //выбрасываем ошибку
-        }
-
-          this.products = data as FavoriteType[]; //если все хорошо, сохраняем избранные товары в переменную
       });
   }
 
@@ -70,8 +69,7 @@ export class FavoriteComponent implements OnInit {
         if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
           throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
         }
-
-        this.countInCart = this.count; //актуальное количество данного продукта в корзине после добавления
+        product.countInCart = this.count;
       });
   }
 
@@ -82,23 +80,21 @@ export class FavoriteComponent implements OnInit {
           throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
         }
 
-        this.countInCart = 0;
+        product.countInCart = 0;
         this.count = 1;
       });
   }
 
   updateCount(value: number, product: FavoriteType) {
-    this.count = value;
-    if (this.countInCart) { //если товар уже есть в корзине, то обновляем его количество
+    this.count = value; //обновляем значение счетчика количества товара в родительском компоненте FavoriteComponent
+    if (product.countInCart) { //если товар уже есть в корзине, обновляем его количество
       this.cartService.updateCart(product.id, this.count)
         .subscribe(data => {
           if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
             throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
           }
-
-          this.countInCart = this.count;
+          product.countInCart = this.count;
         });
     }
   }
-
 }
