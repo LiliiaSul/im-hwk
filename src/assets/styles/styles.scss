@@ -6,6 +6,7 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 html, body {
@@ -13,21 +14,28 @@ html, body {
 }
 
 app-root {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100%;
 }
 
 app-layout {
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
+  height: 100%;
 }
 
-router-outlet ~ * {
-  flex: 1 0 auto;
+app-layout > router-outlet {
+  flex: 0 0 auto;
+}
+
+app-layout > * {
+  flex: 1 1 auto;
+}
+
+app-header {
+  flex: 0 0 auto;
 }
 
 app-footer {
-  flex: 0 0 auto;
+  flex: 0 0 auto
 }

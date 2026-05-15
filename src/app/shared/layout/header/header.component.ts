@@ -48,22 +48,11 @@ export class HeaderComponent implements OnInit {
           this.products = [];
         }
       });
+    this.getCartCount();
 
     this.authService.isLogged$.subscribe((isLoggedIn: boolean) => { //подписываемся на изменения статуса авторизации в AuthService и обновляем локальное состояние isLogged при каждом изменении
       this.isLogged = isLoggedIn;
-
-      if (isLoggedIn) {
-        this.cartService.getCartCount() //метод для получения количества товаров в корзине
-          .subscribe(data => {
-            if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
-              throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
-            }
-
-            this.count = (data as { count: number }).count; //обновляем локальное состояние count при получении данных от сервера
-          });
-      } else {
-        this.count = 0; //если пользователь не авторизован
-      }
+      this.getCartCount(); //при каждом изменении статуса авторизации обновляем количество товаров в корзине
     });
 
 
@@ -71,6 +60,17 @@ export class HeaderComponent implements OnInit {
       .subscribe(count => {
         this.count = count;
       })
+  }
+
+  getCartCount() {
+    this.cartService.getCartCount() //метод для получения количества товаров в корзине
+      .subscribe(data => {
+        if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
+          throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины
+        }
+
+        this.count = (data as { count: number }).count; //обновляем локальное состояние count при получении данных от сервера
+      });
   }
 
   logout() {
