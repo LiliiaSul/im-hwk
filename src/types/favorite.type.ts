@@ -3,5 +3,6 @@ export type FavoriteType = {
   name: string,
   url: string,
   image: string,
-  price: number
+  price: number,
+  countInCart?: number
 }

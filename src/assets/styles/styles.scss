@@ -3,4 +3,39 @@
 @import "mixins";
 @import "global";
 
-//html, body { height: 100%; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+app-layout > router-outlet {
+  flex: 0 0 auto;
+}
+
+app-layout > * {
+  flex: 1 1 auto;
+}
+
+app-header {
+  flex: 0 0 auto;
+}
+
+app-footer {
+  flex: 0 0 auto
+}

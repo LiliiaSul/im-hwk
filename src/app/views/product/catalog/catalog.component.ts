@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import {ProductService} from "../../../shared/services/product.service";
 import {ProductType} from "../../../../types/product.type";
 import {CategoryService} from "../../../shared/services/category.service";
@@ -189,6 +189,13 @@ export class CatalogComponent implements OnInit {
     });
   }
 
+  @HostListener('document:click', ['$event']) //метод для обработки кликов по документу, который вызывается при каждом клике на странице
+  click(event: Event) {
+    if (this.sortingOpen && !(event.target as HTMLElement).closest('.catalog-sorting')) { //проверяем, что клик был вне области опций сортировки, и если это так, то закрываем список опций сортировки
+      this.sortingOpen = false;
+    }
+  }
+
   openPage(page: number) { //устанавливаем выбранную страницу в активных параметрах
     this.activeParams.page = page;
 
@@ -209,8 +216,9 @@ export class CatalogComponent implements OnInit {
   }
 
   openNextPage() {
-    if (this.activeParams.page && this.activeParams.page < this.pages.length) { //если текущая страница меньше общего количества страниц, увеличиваем номер страницы на единицу
-      this.activeParams.page++;
+    const currentPage = this.activeParams.page || 1;
+    if (currentPage < this.pages.length) { //если текущая страница меньше общего количества страниц, увеличиваем номер страницы на единицу
+      this.activeParams.page = currentPage + 1;
 
       this.router.navigate(['/catalog'], {
         queryParams: this.activeParams
