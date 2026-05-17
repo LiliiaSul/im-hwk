@@ -48,7 +48,7 @@ export class HeaderComponent implements OnInit {
           this.products = [];
         }
       });
-    this.getCartCount();
+    this.getCartCount(); //получаем количество товаров в корзине при инициализации компонента, чтобы отображать актуальное количество при загрузке страницы
 
     this.authService.isLogged$.subscribe((isLoggedIn: boolean) => { //подписываемся на изменения статуса авторизации в AuthService и обновляем локальное состояние isLogged при каждом изменении
       this.isLogged = isLoggedIn;
@@ -63,7 +63,7 @@ export class HeaderComponent implements OnInit {
   }
 
   getCartCount() {
-    this.cartService.getCartCount() //метод для получения количества товаров в корзине
+    this.cartService.getCartCount() //получаем количество товаров в корзине
       .subscribe(data => {
         if ((data as DefaultResponseType).error !== undefined) { //если есть ошибка
           throw new Error((data as DefaultResponseType).message); //выбрасываем ошибку, если что-то пошло не так при получении данных корзины

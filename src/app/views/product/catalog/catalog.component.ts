@@ -191,7 +191,7 @@ export class CatalogComponent implements OnInit {
 
   @HostListener('document:click', ['$event']) //метод для обработки кликов по документу, который вызывается при каждом клике на странице
   click(event: Event) {
-    if (this.sortingOpen && (event.target as HTMLElement).className.indexOf('catalog-sorting') === -1) { //проверяем, что клик был вне области опций сортировки, и если это так, то закрываем список опций сортировки
+    if (this.sortingOpen && !(event.target as HTMLElement).closest('.catalog-sorting')) { //проверяем, что клик был вне области опций сортировки, и если это так, то закрываем список опций сортировки
       this.sortingOpen = false;
     }
   }
